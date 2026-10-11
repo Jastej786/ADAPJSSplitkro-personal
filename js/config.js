@@ -3,7 +3,7 @@
 // SHARED MODE: paste your Firebase web config here (see README.md, step 2).
 // While `firebase` is null the app runs in LOCAL MODE: data lives only in this browser.
 export const config = {
-  appName: "SplitEasy",
+  appName: "SplitBroo",
   defaultCurrency: "INR",
   currencies: ["INR", "USD", "EUR", "GBP", "AUD", "CAD", "SGD", "AED"],
   firebase: {

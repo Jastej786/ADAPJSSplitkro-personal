@@ -1,4 +1,4 @@
-# SplitEasy
+# SplitBroo
 
 A Splitwise-style expense splitter. Plain HTML/CSS/JS ES modules, no build step, free to host.
 
