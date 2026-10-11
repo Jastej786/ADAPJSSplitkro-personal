@@ -1,5 +1,6 @@
 import { h, option } from "../dom.js";
 import { attempt, toast } from "../toast.js";
+import { avatar } from "../avatar.js";
 import { store } from "../../store/index.js";
 import { activeMembers, addMember, removeMember, nameOf } from "../../features/members.js";
 import { renameGroup, shareLink, forget, setMe } from "../../features/groups.js";
@@ -27,6 +28,7 @@ export function settingsTab(g, { meId, rerender }) {
 
     h("h3", {}, "Members"),
     h("ul", { class: "list" }, activeMembers(g).map((m) => h("li", { class: "item" },
+      avatar(m),
       h("span", { class: "grow" }, m.id === meId ? `${m.name} (you)` : m.name),
       h("button", { class: "link", onclick: () => confirm(`Remove ${m.name}?`) && attempt(() => removeMember(g.id, m.id, meId)) }, "Remove")))),
     h("div", { class: "row" }, newMember,

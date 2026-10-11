@@ -2,8 +2,10 @@ import { h } from "../dom.js";
 import { openExpenseForm } from "../expenseForm.js";
 import { openSettleForm } from "../settleForm.js";
 import { openWhoAmI } from "../whoAmI.js";
+import { avatarStack } from "../avatar.js";
 import { expensesTab } from "./expensesTab.js";
 import { balancesTab } from "./balancesTab.js";
+import { insightsTab } from "./insightsTab.js";
 import { activityTab } from "./activityTab.js";
 import { settingsTab } from "./settingsTab.js";
 import { fmt } from "../../core/money.js";
@@ -15,6 +17,7 @@ import { activeMembers } from "../../features/members.js";
 const TABS = [
   { id: "expenses", label: "Expenses", render: expensesTab },
   { id: "balances", label: "Balances", render: balancesTab },
+  { id: "insights", label: "Insights", render: insightsTab },
   { id: "activity", label: "Activity", render: activityTab },
   { id: "settings", label: "Settings", render: settingsTab },
 ];
@@ -36,23 +39,27 @@ export function renderGroup(root, id, tabId = "expenses") {
       openWhoAmI(g, () => { asking = false; rerender(); });
     }
 
-    const net = netBalances(g);
-    const mine = net[meId] ?? 0;
-    const summary = !meId ? "" : mine > 0 ? `You are owed ${fmt(mine, g.currency)}` : mine < 0 ? `You owe ${fmt(-mine, g.currency)}` : "You are all settled up";
+    const mine = netBalances(g)[meId] ?? 0;
+    const tone = mine > 0 ? "pos" : mine < 0 ? "neg" : "";
+    const headline = !meId ? "" : mine > 0 ? "You are owed" : mine < 0 ? "You owe" : "You are all settled up";
+    const members = activeMembers(g);
 
     root.replaceChildren(
-      h("a", { href: "#/", class: "back" }, "← Groups"),
-      h("div", { class: "card head" },
-        h("div", {},
+      h("a", { href: "#/", class: "back" }, "← All groups"),
+      h("div", { class: "card hero" },
+        h("div", { class: "hero-main" },
+          h("div", { class: "eyebrow" }, `${g.currency} · ${members.length} ${members.length === 1 ? "person" : "people"}`),
           h("h1", {}, g.name),
-          h("div", { class: "muted" }, `${activeMembers(g).length} people · ${g.currency}`),
-          h("div", { class: `summary ${mine > 0 ? "pos" : mine < 0 ? "neg" : ""}` }, summary)),
-        h("div", { class: "row wrap" },
+          avatarStack(members)),
+        h("div", { class: `hero-balance ${tone}` },
+          h("div", { class: "hero-label" }, headline),
+          mine !== 0 && h("div", { class: "hero-num" }, fmt(Math.abs(mine), g.currency))),
+        h("div", { class: "hero-actions" },
           h("button", { class: "btn primary", onclick: () => openExpenseForm(g, meId) }, "+ Add expense"),
           h("button", { class: "btn", onclick: () => openSettleForm(g, meId) }, "Settle up"))),
       h("nav", { class: "tabs" }, TABS.map((t) =>
         h("a", { href: `#/g/${g.id}/${t.id}`, class: t.id === tab.id ? "on" : "" }, t.label))),
-      h("div", { class: "card" }, tab.render(g, { meId, rerender })),
+      h("div", { class: "card panel" }, tab.render(g, { meId, rerender })),
     );
   }
 

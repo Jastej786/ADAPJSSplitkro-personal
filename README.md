@@ -6,7 +6,10 @@ A Splitwise-style expense splitter. Plain HTML/CSS/JS ES modules, no build step,
 
 Groups · share links · multiple payers · split equally / exact / percent / shares · categories ·
 edit, delete & restore expenses · balances · simplify debts · settle up · activity log ·
-CSV export · JSON backup/restore · dark mode · mobile friendly.
+Insights (week / month / year / all-time / custom ranges, spending over time, categories, paid vs share, vs-previous-period) ·
+Expense search & filters (category, person, period) · month-grouped feed · CSV export · JSON backup/restore · dark/light toggle · mobile friendly.
+
+Dev tip: open the site with `?local` (e.g. `http://localhost:8000/?local`) to use browser storage even when Firebase is configured, so testing never touches the shared database.
 
 ## Layout
 
@@ -17,7 +20,7 @@ firestore.rules       security rules for shared mode
 js/
   main.js, router.js  bootstrap + hash routing (#/, #/g/<id>/<tab>)
   config.js           app name, currencies, Firebase config
-  core/               pure logic, no DOM: money, splits, balances, categories, ids, dates
+  core/               pure logic, no DOM: money, splits, balances, periods, stats, categories, ids, dates
   store/              storage adapters: local.js (browser) / firebase.js (shared) / index.js (picks one)
   features/           one file per feature: groups, members, expenses, settle, activity, export
   ui/                 dom helper, modal, toast, expense/settle/who-am-I forms
