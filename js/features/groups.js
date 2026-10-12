@@ -70,4 +70,12 @@ export async function setSimplify(gid, on) {
   await store.update(gid, (g) => { g.simplify = on; });
 }
 
+// Opt the group in/out of the Friday email reminders (sent by the GitHub Actions job in reminders/).
+export async function setReminders(gid, on, actorName) {
+  await store.update(gid, (g) => {
+    g.reminders = on;
+    logActivity(g, `${actorName} turned weekly email reminders ${on ? "on" : "off"}.`);
+  });
+}
+
 export const shareLink = (gid) => `${location.origin}${location.pathname}#/g/${gid}`;

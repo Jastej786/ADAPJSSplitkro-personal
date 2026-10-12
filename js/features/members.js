@@ -1,6 +1,7 @@
 import { store } from "../store/index.js";
 import { uid } from "../core/id.js";
 import { netBalances } from "../core/balances.js";
+import { normalizeEmail } from "../core/email.js";
 import { logActivity } from "./activity.js";
 
 export const nameOf = (g, id) => g.members.find((m) => m.id === id)?.name ?? "Unknown";
@@ -28,6 +29,17 @@ export async function removeMember(groupId, memberId, actorId) {
     const m = g.members.find((x) => x.id === memberId);
     m.left = true;
     logActivity(g, `${nameOf(g, actorId)} removed ${m.name} from the group.`);
+  });
+}
+
+// Used for weekly reminder emails. Empty string clears it.
+export async function setMemberEmail(groupId, memberId, email, actorId) {
+  const clean = normalizeEmail(email);
+  if (clean === null) throw new Error("That doesn't look like a valid email address.");
+  await store.update(groupId, (g) => {
+    const m = g.members.find((x) => x.id === memberId);
+    if (clean) m.email = clean; else delete m.email;
+    logActivity(g, `${nameOf(g, actorId)} ${clean ? "set" : "cleared"} the reminder email for ${m.name}.`);
   });
 }
 

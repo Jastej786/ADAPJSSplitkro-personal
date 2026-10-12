@@ -1,0 +1,38 @@
+name: Weekly reminders
+
+on:
+  schedule:
+    - cron: "30 3 * * 5"   # Friday 03:30 UTC = 09:00 IST (GitHub may start it a few minutes late)
+  workflow_dispatch:        # "Run workflow" button on the Actions tab
+    inputs:
+      dry_run:
+        description: "Dry run: only print how many emails would be sent"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: weekly-reminders
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install --prefix reminders --no-audit --no-fund
+      - name: Send reminders
+        run: node reminders/send.mjs
+        env:
+          # Scheduled runs send for real; manual runs default to a dry run.
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}

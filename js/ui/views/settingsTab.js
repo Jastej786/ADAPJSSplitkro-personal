@@ -3,11 +3,13 @@ import { attempt, toast } from "../toast.js";
 import { avatar } from "../avatar.js";
 import { store } from "../../store/index.js";
 import { activeMembers, addMember, removeMember, nameOf } from "../../features/members.js";
-import { renameGroup, shareLink, forget, setMe } from "../../features/groups.js";
+import { renameGroup, shareLink, forget, setMe, setReminders } from "../../features/groups.js";
+import { openEmailForm } from "../emailForm.js";
 import { exportCsv, exportJson, importJson } from "../../features/export.js";
 
 export function settingsTab(g, { meId, rerender }) {
   const link = shareLink(g.id);
+  const emailCount = activeMembers(g).filter((m) => m.email).length;
   const nameInput = h("input", { type: "text", value: g.name });
   const newMember = h("input", { type: "text", placeholder: "Add a friend by name" });
   const fileInput = h("input", { type: "file", accept: "application/json", hidden: true });
@@ -29,10 +31,21 @@ export function settingsTab(g, { meId, rerender }) {
     h("h3", {}, "Members"),
     h("ul", { class: "list" }, activeMembers(g).map((m) => h("li", { class: "item" },
       avatar(m),
-      h("span", { class: "grow" }, m.id === meId ? `${m.name} (you)` : m.name),
+      h("div", { class: "grow" },
+        h("div", {}, m.id === meId ? `${m.name} (you)` : m.name),
+        h("div", { class: "muted small email" }, m.email ?? "No email")),
+      h("button", { class: "link", onclick: () => openEmailForm(g, m, meId) }, m.email ? "Edit email" : "Add email"),
       h("button", { class: "link", onclick: () => confirm(`Remove ${m.name}?`) && attempt(() => removeMember(g.id, m.id, meId)) }, "Remove")))),
     h("div", { class: "row" }, newMember,
       h("button", { class: "btn", onclick: async () => { if (await attempt(() => addMember(g.id, newMember.value, meId))) newMember.value = ""; } }, "Add")),
+
+    h("h3", {}, "Weekly reminders"),
+    h("label", { class: "check" },
+      h("input", { type: "checkbox", checked: !!g.reminders, onchange: (e) => attempt(() => setReminders(g.id, e.target.checked, nameOf(g, meId))) }),
+      "Email members who owe money, every Friday morning"),
+    h("p", { class: "muted small" },
+      `${emailCount} of ${activeMembers(g).length} members have an email. Only people who owe something get one. `,
+      "Needs the reminder job set up (see README)."),
 
     h("h3", {}, "I am"),
     h("select", { onchange: (e) => { setMe(g.id, e.target.value); rerender(); } },
