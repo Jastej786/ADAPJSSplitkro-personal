@@ -66,5 +66,5 @@ console.log(`${dryRun ? "Dry run: " : ""}${sent} email(s) ${dryRun ? "would be s
 if (scanned === 0) console.log("Hint: the database has no groups. Check FIREBASE_SERVICE_ACCOUNT belongs to the right Firebase project.");
 else if (groups === 0) console.log("Hint: no group has 'Weekly reminders' ticked. Tick it in the group's Settings on the live site (not ?local).");
 else if (withEmail === 0) console.log("Hint: reminders are on, but no member has an email. Use 'Add email' in the group's Settings.");
-else if (sent === 0) console.log("Hint: nobody with an email currently owes money, so there is nothing to remind.");
+else if (sent === 0) console.log("Hint: nobody with an email has an outstanding balance (everyone is settled up), so there is nothing to send.");
 process.exit(failed ? 1 : 0);

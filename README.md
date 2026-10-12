@@ -70,8 +70,10 @@ The Firebase free tier is far more than a friend group will ever use.
 
 ## 3. Weekly email reminders (optional, free)
 
-Every Friday ~9:00 IST a GitHub Actions job emails each member who owes money, e.g.
-"You owe ₹1,250 in Flat 4B: ₹800 to Asha, ₹450 to Ravi". Settled-up people get nothing.
+Every Friday ~9:00 IST a GitHub Actions job emails each member who has an email and an outstanding balance:
+what they owe and to whom, and what they will receive and from whom, e.g.
+"You owe ₹1,250 in Flat 4B: ₹800 to Asha, ₹450 to Ravi" or "You're owed ₹900: ₹600 from Ravi, ₹300 from Meera".
+Settled-up people get nothing.
 
 **In the app:** group → Settings → *Add email* next to each member, then tick **Weekly reminders**.
 

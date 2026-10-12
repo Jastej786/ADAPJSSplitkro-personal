@@ -42,9 +42,9 @@ export function settingsTab(g, { meId, rerender }) {
     h("h3", {}, "Weekly reminders"),
     h("label", { class: "check" },
       h("input", { type: "checkbox", checked: !!g.reminders, onchange: (e) => attempt(() => setReminders(g.id, e.target.checked, nameOf(g, meId))) }),
-      "Email members who owe money, every Friday morning"),
+      "Email members their balance every Friday morning"),
     h("p", { class: "muted small" },
-      `${emailCount} of ${activeMembers(g).length} members have an email. Only people who owe something get one. `,
+      `${emailCount} of ${activeMembers(g).length} members have an email. Each email lists who they owe and who owes them; settled-up people get nothing. `,
       "Needs the reminder job set up (see README)."),
 
     h("h3", {}, "I am"),
