@@ -9,7 +9,7 @@ import nodemailer from "nodemailer";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { buildReminders } from "./build.mjs";
-import { maskEmail } from "../js/core/email.js";
+import { maskEmail, normalizeEmail } from "../js/core/email.js";
 
 const env = process.env;
 const dryRun = env.DRY_RUN === "true";
@@ -33,12 +33,14 @@ if (!dryRun) {
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-let groups = 0, sent = 0, failed = 0;
+let scanned = 0, groups = 0, withEmail = 0, sent = 0, failed = 0;
 
 for (const doc of (await db.collection("groups").get()).docs) {
   const group = doc.data();
+  scanned += 1;
   if (!group.reminders) continue;
   groups += 1;
+  withEmail += group.members.filter((m) => !m.left && normalizeEmail(m.email)).length;
 
   for (const r of buildReminders(group, siteUrl)) {
     if (dryRun) {
@@ -58,5 +60,11 @@ for (const doc of (await db.collection("groups").get()).docs) {
   }
 }
 
-console.log(`${dryRun ? "Dry run: " : ""}${groups} group(s) with reminders on, ${sent} email(s) ${dryRun ? "would be sent" : "sent"}, ${failed} failed.`);
+// Counts only: safe for public logs, and enough to see why nothing was sent.
+console.log(`Scanned ${scanned} group(s): ${groups} with reminders on, ${withEmail} member(s) with an email in those.`);
+console.log(`${dryRun ? "Dry run: " : ""}${sent} email(s) ${dryRun ? "would be sent" : "sent"}, ${failed} failed.`);
+if (scanned === 0) console.log("Hint: the database has no groups. Check FIREBASE_SERVICE_ACCOUNT belongs to the right Firebase project.");
+else if (groups === 0) console.log("Hint: no group has 'Weekly reminders' ticked. Tick it in the group's Settings on the live site (not ?local).");
+else if (withEmail === 0) console.log("Hint: reminders are on, but no member has an email. Use 'Add email' in the group's Settings.");
+else if (sent === 0) console.log("Hint: nobody with an email currently owes money, so there is nothing to remind.");
 process.exit(failed ? 1 : 0);
