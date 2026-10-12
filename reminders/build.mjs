@@ -8,6 +8,9 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 // Names are user-typed and the group doc is writable by anyone with the link: keep them short and single-line.
 const clean = (s, max = 60) => String(s ?? "").replace(/[\r\n\t]+/g, " ").trim().slice(0, max);
 
+// Subject for anyone who owes somebody; people who are only owed get "You're owed ₹X in Group".
+const DEBTOR_SUBJECT = "paise bhejde bkl";
+
 // Returns [{ email, memberName, owes, owed, net, subject, text, html }] — one per member who has an email
 // and an outstanding balance (they owe someone, someone owes them, or both). Settled-up members get nothing.
 export function buildReminders(group, siteUrl) {
@@ -71,7 +74,7 @@ ${section("You owe", pay, "to", "#c2410c")}${section("You'll receive", receive, 
 <p style="margin:24px 0 0;font-size:12px;color:#7d8982;line-height:1.5">You're getting this because weekly reminders are on for this group. Turn them off in the group's Settings, or ignore this email if it isn't meant for you.</p>
 </td></tr></table></td></tr></table></body></html>`;
 
-    out.push({ email, memberName: name, owes: sum(pay), owed: sum(receive), net, subject: `${headline} in ${groupName}`, text, html });
+    out.push({ email, memberName: name, owes: sum(pay), owed: sum(receive), net, subject: pay.length ? DEBTOR_SUBJECT : `${headline} in ${groupName}`, text, html });
   }
   return out;
 }

@@ -2,7 +2,7 @@ name: Weekly reminders
 
 on:
   schedule:
-    - cron: "30 3 * * 5"   # Friday 03:30 UTC = 09:00 IST (GitHub may start it a few minutes late)
+    - cron: "30 15 * * 5"  # Friday 15:30 UTC = 21:00 (9 pm) IST (GitHub may start it a few minutes late)
   workflow_dispatch:        # "Run workflow" button on the Actions tab
     inputs:
       dry_run:
